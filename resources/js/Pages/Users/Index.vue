@@ -25,7 +25,7 @@
                       <div class="flex items-center">
                         <div>
                           <div class="text-sm font-medium text-gray-900">
-                            {{ user.name }}
+                            <Link :href="`/users/${user.id}`">{{ user.name }}</Link>
                           </div>
                         </div>
                       </div>
@@ -50,10 +50,11 @@
 </template>
  
 <script setup>
-import Pagination from "../../Shared/Pagination.vue";
-import { ref, watch } from "vue";
+import Pagination from "@/Shared/Pagination.vue";
+import { ref, watch, onMounted } from "vue";
 import { router } from "@inertiajs/vue3";
 import debounce from "lodash/debounce";
+// import { useCurrentUser } from "@/Composables/useCurrentUser";
 
 let props = defineProps({ 
     users: Object,
@@ -72,4 +73,6 @@ watch(search, debounce(function(value){
         },
     );
 }, 300));
+
+
 </script>

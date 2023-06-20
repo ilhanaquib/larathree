@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Request;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\UserController;
 
 Route::get('login', [LoginController::class, 'create'])->name('login');
 Route::post('login', [LoginController::class, 'store']);
@@ -17,32 +18,11 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Home');
     });
 
-    Route::get('/users', function () {
-        return Inertia::render('Users/Index', [
-            'users' => User::query()
-                ->when(Request::input('search'), function ($query, $search) {
-                    $query->where('name', 'like', "%{$search}%");
-                })
-                ->paginate(10)
-                ->withQueryString()
-                ->through(fn($user) => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'can' => [
-                        'edit' => Auth::user()->can('edit', $user)
-                    ]
-                ]),
+    Route::get('/users', [UserController::class, 'index']);
 
-                'filters' => Request::only(['search']),
-                'can' => [
-                    'createUser' => Auth::user()->can('create', User::class)
-                ]
-        ]);
-    });
+    Route::get('/users/create', [UserController::class, 'create'])->can('create', 'App\Models\User');
 
-    Route::get('/users/create', function () {
-        return Inertia::render('Users/Create');
-    })->can('create', 'App\Models\User');
+    Route::get('users/{user}', [UserController::class, 'show']);
 
     Route::post('/users', function () {
         $attributes = Request::validate([
